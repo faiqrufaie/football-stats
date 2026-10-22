@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Player Stats</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 15px;
+            font-family: Arial, sans-serif;
+            background: #07131b;
+            color: white;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 36px;
+        }
+
+        h1 span {
+            color: #27d49a;
+        }
+
+        .subtitle {
+            color: #b8c8d4;
+        }
+
+        .form-box {
+            background: #101f29;
+            padding: 25px;
+            border: 1px solid #314653;
+            border-radius: 15px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border-radius: 8px;
+            border: 1px solid #4a5d6b;
+            background: #1b2b37;
+            color: white;
+            font-size: 16px;
+        }
+
+        button {
+            grid-column: 1 / -1;
+            padding: 15px;
+            border: none;
+            border-radius: 9px;
+            background: #27d49a;
+            color: #071b15;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1fb982;
+        }
+
+        .results {
+            max-width: 600px;
+            margin: 25px auto;
+            padding: 25px;
+            background: #0c2928;
+            border: 1px solid #1b4945;
+            border-radius: 15px;
+        }
+
+        .results h2 {
+            margin-top: 0;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 13px 0;
+            border-bottom: 1px solid #ffffff20;
+        }
+
+        .value {
+            color: #27d49a;
+            font-weight: bold;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        #error {
+            color: #ffaaa0;
+            margin-top: 12px;
+        }
+
+        footer {
+            text-align: center;
+            color: #a9bac8;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 29px;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>⚽ Football <span>Player Stats</span></h1>
+        <p class="subtitle">
+            Enter your stats and see your performance!
+        </p>
+    </header>
+
+    <section class="form-box">
+
+        <form id="statsForm">
+
+            <div>
+                <label for="player">Player Name</label>
+                <input
+                    type="text"
+                    id="player"
+                    placeholder="e.g. Sayed Faiq"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="matches">Matches Played</label>
+                <input
+                    type="number"
+                    id="matches"
+                    min="0"
+                    step="1"
+                    placeholder="e.g. 5"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="goals">Goals Scored</label>
+                <input
+                    type="number"
+                    id="goals"
+                    min="0"
+                    step="1"
+                    placeholder="e.g. 4"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="assists">Assists</label>
+                <input
+                    type="number"
+                    id="assists"
+                    min="0"
+                    step="1"
+                    placeholder="e.g. 2"
+                    required
+                >
+            </div>
+
+            <button type="submit">
+                Calculate Stats
+            </button>
+
+        </form>
+
+        <p id="error" role="alert"></p>
+
+    </section>
+
+    <section class="results" aria-live="polite">
+
+        <h2>Player Statistics</h2>
+
+        <div class="stat">
+            <span>Player Name</span>
+            <span class="value" id="outPlayer">—</span>
+        </div>
+
+        <div class="stat">
+            <span>Matches Played</span>
+            <span class="value" id="outMatches">—</span>
+        </div>
+
+        <div class="stat">
+            <span>Goals</span>
+            <span class="value" id="outGoals">—</span>
+        </div>
+
+        <div class="stat">
+            <span>Assists</span>
+            <span class="value" id="outAssists">—</span>
+        </div>
+
+        <div class="stat">
+            <span>Goal Contributions</span>
+            <span class="value" id="outContributions">—</span>
+        </div>
+
+        <div class="stat">
+            <span>Goals Per Match</span>
+            <span class="value" id="outRate">—</span>
+        </div>
+
+    </section>
+
+    <footer>
+        Keep playing. Keep improving. ⚽
+    </footer>
+
+</div>
+
+<script>
+    const form = document.getElementById("statsForm");
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const player = document.getElementById("player").value.trim();
+        const matches = Number(document.getElementById("matches").value);
+        const goals = Number(document.getElementById("goals").value);
+        const assists = Number(document.getElementById("assists").value);
+
+        const error = document.getElementById("error");
+
+        if (
+            !player ||
+            !Number.isInteger(matches) ||
+            !Number.isInteger(goals) ||
+            !Number.isInteger(assists) ||
+            matches < 0 ||
+            goals < 0 ||
+            assists < 0
+        ) {
+            error.textContent =
+                "Please enter valid non-negative whole numbers.";
+            return;
+        }
+
+        if (matches === 0 && (goals > 0 || assists > 0)) {
+            error.textContent =
+                "Matches must be at least 1 if goals or assists are recorded.";
+            return;
+        }
+
+        error.textContent = "";
+
+        const contributions = goals + assists;
+        const goalsPerMatch = matches > 0 ? (goals / matches).toFixed(2) : "0.00";
+
+        document.getElementById("outPlayer").textContent = player;
+        document.getElementById("outMatches").textContent = matches;
+        document.getElementById("outGoals").textContent = goals;
+        document.getElementById("outAssists").textContent = assists;
+        document.getElementById("outContributions").textContent = contributions;
+        document.getElementById("outRate").textContent = goalsPerMatch;
+    });
+</script>
+
+</body>
+</html>
