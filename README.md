@@ -1,2 +1,2 @@
-# football-stats
-This website is used to measure the performance of players by calculating their goals to matches ratio.
+# football-player-analytics
+This website is used to measure the performance of players by calculating it using the input data.
