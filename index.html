@@ -3,301 +3,924 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Player Stats</title>
-
+    <title>Football Player Analytics Dashboard</title>
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #07131b;
+            --card-bg: #101f29;
+            --card-alt: #0c2928;
+            --input-bg: #1b2b37;
+            --border-subtle: #314653;
+            --border-teal: #1b4945;
+            --accent: #27d49a;
+            --accent-hover: #1fb982;
+            --accent-blue: #38bdf8;
+            --accent-amber: #fbbf24;
+            --text-main: #ffffff;
+            --text-muted: #b8c8d4;
+            --danger: #ff7b72;
         }
 
         body {
-            margin: 0;
-            padding: 30px 15px;
-            font-family: Arial, sans-serif;
-            background: #07131b;
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: radial-gradient(circle at top right, #0e2836 0%, var(--bg-dark) 55%);
+            color: var(--text-main);
+            padding: 30px 16px 60px;
+            min-height: 100vh;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 850px;
-            margin: auto;
+            max-width: 1120px;
+            margin: 0 auto;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         h1 {
             font-size: 36px;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
         }
 
         h1 span {
-            color: #27d49a;
+            color: var(--accent);
         }
 
         .subtitle {
-            color: #b8c8d4;
+            color: var(--text-muted);
+            font-size: 15px;
         }
 
-        .form-box {
-            background: #101f29;
-            padding: 25px;
-            border: 1px solid #314653;
-            border-radius: 15px;
+        /* Main Two-Column Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            gap: 24px;
+            align-items: start;
         }
 
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .panel-header h2 {
+            font-size: 19px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Styling */
         form {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
+            gap: 16px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 13px;
-            border-radius: 8px;
+            padding: 12px 14px;
+            border-radius: 9px;
             border: 1px solid #4a5d6b;
-            background: #1b2b37;
-            color: white;
-            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(39, 212, 154, 0.18);
+        }
+
+        .btn-group {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
         }
 
         button {
-            grid-column: 1 / -1;
-            padding: 15px;
+            padding: 14px 18px;
             border: none;
             border-radius: 9px;
-            background: #27d49a;
-            color: #071b15;
-            font-size: 17px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            background: #1fb982;
+        .btn-primary {
+            flex: 2;
+            background: var(--accent);
+            color: #062118;
         }
 
-        .results {
-            max-width: 600px;
-            margin: 25px auto;
-            padding: 25px;
-            background: #0c2928;
-            border: 1px solid #1b4945;
-            border-radius: 15px;
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
-        .results h2 {
-            margin-top: 0;
+        .btn-secondary {
+            flex: 1;
+            background: #233745;
+            color: var(--text-main);
+            border: 1px solid #3f5768;
         }
 
-        .stat {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 13px 0;
-            border-bottom: 1px solid #ffffff20;
+        .btn-secondary:hover {
+            background: #2d4657;
         }
 
-        .value {
-            color: #27d49a;
-            font-weight: bold;
-            text-align: right;
-            overflow-wrap: anywhere;
+        .btn-sm {
+            padding: 7px 12px;
+            font-size: 12px;
+            border-radius: 7px;
+        }
+
+        .btn-danger {
+            background: rgba(255, 123, 114, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 123, 114, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 123, 114, 0.28);
         }
 
         #error {
-            color: #ffaaa0;
+            color: var(--danger);
+            font-size: 14px;
             margin-top: 12px;
+            font-weight: 500;
         }
+
+        /* Results & Scouting Card */
+        .results-panel {
+            background: linear-gradient(160deg, var(--card-alt) 0%, #0d2129 100%);
+            border: 1px solid var(--border-teal);
+        }
+
+        .player-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(39, 212, 154, 0.2);
+        }
+
+        .player-meta h3 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(39, 212, 154, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(39, 212, 154, 0.35);
+        }
+
+        .badge.pos {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+
+        /* Circular Rating Gauge */
+        .rating-ring {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) calc(var(--rating-pct, 0) * 1%), #1e383c 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .rating-ring::before {
+            content: "";
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #0b2424;
+        }
+
+        .rating-value {
+            position: relative;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .kpi-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .kpi-val.blue { color: var(--accent-blue); }
+        .kpi-val.amber { color: var(--accent-amber); }
+
+        /* Visual Progress Bars */
+        .visual-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .bar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        .progress-track {
+            height: 10px;
+            background: #173036;
+            border-radius: 999px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .bar-goals {
+            background: var(--accent);
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .bar-assists {
+            background: var(--accent-blue);
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .bar-conversion {
+            background: linear-gradient(90deg, var(--accent-amber), var(--accent));
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-bar button {
+            flex: 1;
+            font-size: 13px;
+            padding: 11px;
+        }
+
+        /* Squad Leaderboard & Compare */
+        .squad-section {
+            margin-top: 28px;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .controls-row select {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Head-to-Head Comparison Box */
+        .compare-box {
+            margin-top: 20px;
+            padding: 18px;
+            background: #0c1821;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+        }
+
+        .compare-selectors {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .vs-pill {
+            background: var(--accent);
+            color: #062118;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 99px;
+        }
+
+        .compare-row {
+            display: grid;
+            grid-template-columns: 1fr 140px 1fr;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 14px;
+        }
+
+        .compare-row .p1 { text-align: right; font-weight: 700; }
+        .compare-row .metric { text-align: center; color: var(--text-muted); font-size: 12px; text-transform: uppercase; }
+        .compare-row .p2 { text-align: left; font-weight: 700; }
+        .winner { color: var(--accent); }
 
         footer {
             text-align: center;
-            color: #a9bac8;
-            margin-top: 30px;
+            color: var(--text-muted);
+            margin-top: 36px;
+            font-size: 14px;
         }
 
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 29px;
+        @media (max-width: 860px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
             }
+        }
 
+        @media (max-width: 520px) {
             form {
                 grid-template-columns: 1fr;
             }
-
-            button {
-                grid-column: 1;
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .compare-selectors {
+                grid-template-columns: 1fr;
+                text-align: center;
             }
         }
     </style>
 </head>
-
 <body>
 
 <div class="container">
-
     <header>
-        <h1>⚽ Football <span>Player Stats</span></h1>
-        <p class="subtitle">
-            Enter your stats and see your performance!
-        </p>
+        <h1>⚽ Football <span>Player Analytics</span></h1>
+        <p class="subtitle">Advanced per-90 efficiency, match rating engine, and squad comparison</p>
     </header>
 
-    <section class="form-box">
-
-        <form id="statsForm">
-
-            <div>
-                <label for="player">Player Name</label>
-                <input
-                    type="text"
-                    id="player"
-                    placeholder="e.g. Sayed Faiq"
-                    required
-                >
+    <div class="dashboard-grid">
+        <!-- Input Form Panel -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>📋 Match &amp; Season Input</h2>
+                <button type="button" class="btn-secondary btn-sm" id="loadSampleBtn">Load Sample</button>
             </div>
 
-            <div>
-                <label for="matches">Matches Played</label>
-                <input
-                    type="number"
-                    id="matches"
-                    min="0"
-                    step="1"
-                    placeholder="e.g. 5"
-                    required
-                >
+            <form id="statsForm">
+                <div>
+                    <label for="player">Player Name</label>
+                    <input type="text" id="player" placeholder="e.g. Sayed Faiq" required>
+                </div>
+
+                <div>
+                    <label for="position">Position</label>
+                    <select id="position">
+                        <option value="FWD">Forward (ST / LW / RW)</option>
+                        <option value="MID">Midfielder (CAM / CM / CDM)</option>
+                        <option value="DEF">Defender (CB / LB / RB)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="matches">Matches Played</label>
+                    <input type="number" id="matches" min="0" step="1" placeholder="e.g. 5" required>
+                </div>
+
+                <div>
+                    <label for="minutes">Minutes Played</label>
+                    <input type="number" id="minutes" min="0" step="1" placeholder="e.g. 410" required>
+                </div>
+
+                <div>
+                    <label for="goals">Goals Scored</label>
+                    <input type="number" id="goals" min="0" step="1" placeholder="e.g. 4" required>
+                </div>
+
+                <div>
+                    <label for="assists">Assists</label>
+                    <input type="number" id="assists" min="0" step="1" placeholder="e.g. 2" required>
+                </div>
+
+                <div class="full-width">
+                    <label for="shots">Shots on Target (SOT)</label>
+                    <input type="number" id="shots" min="0" step="1" placeholder="e.g. 11" required>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">Analyze Performance</button>
+                    <button type="reset" class="btn-secondary" id="resetBtn">Clear</button>
+                </div>
+            </form>
+
+            <p id="error" role="alert"></p>
+        </section>
+
+        <!-- Results & Scouting Report Panel -->
+        <section class="panel results-panel" aria-live="polite">
+            <div class="panel-header">
+                <h2>📊 Scouting Report</h2>
+                <span id="statusText" style="font-size: 12px; color: var(--text-muted);">Awaiting data</span>
             </div>
 
-            <div>
-                <label for="goals">Goals Scored</label>
-                <input
-                    type="number"
-                    id="goals"
-                    min="0"
-                    step="1"
-                    placeholder="e.g. 4"
-                    required
-                >
+            <div class="player-hero">
+                <div class="player-meta">
+                    <h3 id="outPlayer">Player Name</h3>
+                    <div class="badges">
+                        <span class="badge pos" id="outPos">POS</span>
+                        <span class="badge" id="outTier">Unrated</span>
+                    </div>
+                </div>
+                <div class="rating-ring" id="ratingRing" style="--rating-pct: 0;">
+                    <span class="rating-value" id="outRating">—</span>
+                </div>
             </div>
 
-            <div>
-                <label for="assists">Assists</label>
-                <input
-                    type="number"
-                    id="assists"
-                    min="0"
-                    step="1"
-                    placeholder="e.g. 2"
-                    required
-                >
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">G + A Total</div>
+                    <div class="kpi-val" id="outContributions">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">G + A / 90</div>
+                    <div class="kpi-val blue" id="outPer90">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Mins / G+A</div>
+                    <div class="kpi-val amber" id="outMinsPerGA">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Goals / Match</div>
+                    <div class="kpi-val" id="outGoalsMatch">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Shot Conversion</div>
+                    <div class="kpi-val blue" id="outConversion">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Mins / Match</div>
+                    <div class="kpi-val amber" id="outAvgMins">—</div>
+                </div>
             </div>
 
-            <button type="submit">
-                Calculate Stats
-            </button>
+            <div class="visual-section">
+                <div>
+                    <div class="bar-header">
+                        <span>Contribution Split (Goals vs Assists)</span>
+                        <span id="splitText">0% G / 0% A</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="bar-goals" id="barGoals" style="width: 0%;"></div>
+                        <div class="bar-assists" id="barAssists" style="width: 0%;"></div>
+                    </div>
+                </div>
 
-        </form>
+                <div>
+                    <div class="bar-header">
+                        <span>Finishing Efficiency (Goals / Shots on Target)</span>
+                        <span id="convBarText">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="bar-conversion" id="barConversion" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
 
-        <p id="error" role="alert"></p>
+            <div class="action-bar">
+                <button type="button" class="btn-primary" id="saveSquadBtn" disabled>+ Save to Squad</button>
+                <button type="button" class="btn-secondary" id="copyReportBtn" disabled>Copy Report</button>
+            </div>
+        </section>
+    </div>
 
-    </section>
-
-    <section class="results" aria-live="polite">
-
-        <h2>Player Statistics</h2>
-
-        <div class="stat">
-            <span>Player Name</span>
-            <span class="value" id="outPlayer">—</span>
+    <!-- Squad Roster & Comparison Panel -->
+    <section class="panel squad-section">
+        <div class="panel-header">
+            <h2>🏆 Squad Leaderboard &amp; Head-to-Head</h2>
+            <div class="controls-row">
+                <label for="sortSelect" style="margin:0;">Sort by:</label>
+                <select id="sortSelect">
+                    <option value="rating">Match Rating</option>
+                    <option value="per90">G+A per 90</option>
+                    <option value="contributions">Total G+A</option>
+                    <option value="goals">Goals</option>
+                </select>
+                <button type="button" class="btn-danger btn-sm" id="clearSquadBtn">Clear Squad</button>
+            </div>
         </div>
 
-        <div class="stat">
-            <span>Matches Played</span>
-            <span class="value" id="outMatches">—</span>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Pos</th>
+                        <th>MP</th>
+                        <th>Mins</th>
+                        <th>G</th>
+                        <th>A</th>
+                        <th>G+A</th>
+                        <th>G+A/90</th>
+                        <th>Conv %</th>
+                        <th>Rating</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="squadBody">
+                    <tr>
+                        <td colspan="11" style="text-align:center; color: var(--text-muted); padding: 20px;">
+                            No players saved yet. Calculate stats above and click "+ Save to Squad".
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <div class="stat">
-            <span>Goals</span>
-            <span class="value" id="outGoals">—</span>
+        <!-- Head-to-Head Comparison -->
+        <div class="compare-box" id="compareBox" style="display: none;">
+            <div class="compare-selectors">
+                <select id="compareP1"></select>
+                <span class="vs-pill">VS</span>
+                <select id="compareP2"></select>
+            </div>
+            <div id="compareRows"></div>
         </div>
-
-        <div class="stat">
-            <span>Assists</span>
-            <span class="value" id="outAssists">—</span>
-        </div>
-
-        <div class="stat">
-            <span>Goal Contributions</span>
-            <span class="value" id="outContributions">—</span>
-        </div>
-
-        <div class="stat">
-            <span>Goals Per Match</span>
-            <span class="value" id="outRate">—</span>
-        </div>
-
     </section>
 
     <footer>
         Keep playing. Keep improving. ⚽
     </footer>
-
 </div>
 
 <script>
     const form = document.getElementById("statsForm");
+    const errorEl = document.getElementById("error");
+    const saveSquadBtn = document.getElementById("saveSquadBtn");
+    const copyReportBtn = document.getElementById("copyReportBtn");
+    const loadSampleBtn = document.getElementById("loadSampleBtn");
+    const sortSelect = document.getElementById("sortSelect");
+    const clearSquadBtn = document.getElementById("clearSquadBtn");
+    const compareBox = document.getElementById("compareBox");
+    const compareP1 = document.getElementById("compareP1");
+    const compareP2 = document.getElementById("compareP2");
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault();
+    let currentStats = null;
+    let squad = JSON.parse(localStorage.getItem("footballSquadAnalytics")) || [];
+
+    function calculateMetrics({ player, position, matches, minutes, goals, assists, shots }) {
+        const contributions = goals + assists;
+        const goalsPerMatch = matches > 0 ? +(goals / matches).toFixed(2) : 0;
+        const per90 = minutes > 0 ? +((contributions / minutes) * 90).toFixed(2) : 0;
+        const minsPerGA = contributions > 0 ? Math.round(minutes / contributions) : null;
+        const conversion = shots > 0 ? +((goals / shots) * 100).toFixed(1) : 0;
+        const avgMins = matches > 0 ? Math.round(minutes / matches) : 0;
+
+        // Position-adjusted Match Rating (5.0 to 10.0)
+        const posMultiplier = position === "DEF" ? 1.45 : position === "MID" ? 1.2 : 1.0;
+        const rawScore = 5.8 + (per90 * 2.1 * posMultiplier) + (conversion * 0.015);
+        const rating = +Math.min(10.0, Math.max(5.0, rawScore)).toFixed(1);
+
+        let tier = "Developing";
+        if (rating >= 9.0) tier = "World Class";
+        else if (rating >= 8.0) tier = "Clinical Elite";
+        else if (rating >= 7.0) tier = "Key Starter";
+        else if (rating >= 6.2) tier = "Solid Contributor";
+
+        return {
+            id: Date.now(),
+            player,
+            position,
+            matches,
+            minutes,
+            goals,
+            assists,
+            shots,
+            contributions,
+            goalsPerMatch,
+            per90,
+            minsPerGA,
+            conversion,
+            avgMins,
+            rating,
+            tier
+        };
+    }
+
+    function renderDashboard(stats) {
+        currentStats = stats;
+        document.getElementById("statusText").textContent = "Analysis Ready";
+        document.getElementById("outPlayer").textContent = stats.player;
+        document.getElementById("outPos").textContent = stats.position;
+        document.getElementById("outTier").textContent = stats.tier;
+        document.getElementById("outRating").textContent = stats.rating.toFixed(1);
+
+        const ringPct = ((stats.rating - 5) / 5) * 100;
+        document.getElementById("ratingRing").style.setProperty("--rating-pct", Math.max(5, ringPct));
+
+        document.getElementById("outContributions").textContent = stats.contributions;
+        document.getElementById("outPer90").textContent = stats.per90.toFixed(2);
+        document.getElementById("outMinsPerGA").textContent = stats.minsPerGA ? `${stats.minsPerGA}'` : "—";
+        document.getElementById("outGoalsMatch").textContent = stats.goalsPerMatch.toFixed(2);
+        document.getElementById("outConversion").textContent = `${stats.conversion}%`;
+        document.getElementById("outAvgMins").textContent = `${stats.avgMins}'`;
+
+        // Bars
+        const goalPct = stats.contributions > 0 ? Math.round((stats.goals / stats.contributions) * 100) : 0;
+        const assistPct = stats.contributions > 0 ? 100 - goalPct : 0;
+        document.getElementById("splitText").textContent = `${goalPct}% G / ${assistPct}% A`;
+        document.getElementById("barGoals").style.width = `${goalPct}%`;
+        document.getElementById("barAssists").style.width = `${assistPct}%`;
+
+        const cappedConv = Math.min(100, stats.conversion);
+        document.getElementById("convBarText").textContent = `${stats.conversion}% (${stats.goals}/${stats.shots})`;
+        document.getElementById("barConversion").style.width = `${cappedConv}%`;
+
+        saveSquadBtn.disabled = false;
+        copyReportBtn.disabled = false;
+    }
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        errorEl.textContent = "";
 
         const player = document.getElementById("player").value.trim();
+        const position = document.getElementById("position").value;
         const matches = Number(document.getElementById("matches").value);
+        const minutes = Number(document.getElementById("minutes").value);
         const goals = Number(document.getElementById("goals").value);
         const assists = Number(document.getElementById("assists").value);
+        const shots = Number(document.getElementById("shots").value);
 
-        const error = document.getElementById("error");
-
-        if (
-            !player ||
-            !Number.isInteger(matches) ||
-            !Number.isInteger(goals) ||
-            !Number.isInteger(assists) ||
-            matches < 0 ||
-            goals < 0 ||
-            assists < 0
-        ) {
-            error.textContent =
-                "Please enter valid non-negative whole numbers.";
+        if (!player || [matches, minutes, goals, assists, shots].some(n => !Number.isInteger(n) || n < 0)) {
+            errorEl.textContent = "Please enter valid non-negative whole numbers for all fields.";
+            return;
+        }
+        if (matches === 0 && (minutes > 0 || goals > 0 || assists > 0 || shots > 0)) {
+            errorEl.textContent = "Matches must be at least 1 if minutes, goals, assists, or shots are recorded.";
+            return;
+        }
+        if ((goals > 0 || assists > 0) && minutes === 0) {
+            errorEl.textContent = "Minutes played must be greater than 0 if goals or assists are recorded.";
+            return;
+        }
+        if (goals > shots) {
+            errorEl.textContent = "Shots on target cannot be fewer than goals scored.";
             return;
         }
 
-        if (matches === 0 && (goals > 0 || assists > 0)) {
-            error.textContent =
-                "Matches must be at least 1 if goals or assists are recorded.";
-            return;
-        }
-
-        error.textContent = "";
-
-        const contributions = goals + assists;
-        const goalsPerMatch = matches > 0 ? (goals / matches).toFixed(2) : "0.00";
-
-        document.getElementById("outPlayer").textContent = player;
-        document.getElementById("outMatches").textContent = matches;
-        document.getElementById("outGoals").textContent = goals;
-        document.getElementById("outAssists").textContent = assists;
-        document.getElementById("outContributions").textContent = contributions;
-        document.getElementById("outRate").textContent = goalsPerMatch;
+        const stats = calculateMetrics({ player, position, matches, minutes, goals, assists, shots });
+        renderDashboard(stats);
     });
+
+    loadSampleBtn.addEventListener("click", () => {
+        document.getElementById("player").value = "Sayed Faiq";
+        document.getElementById("position").value = "FWD";
+        document.getElementById("matches").value = 8;
+        document.getElementById("minutes").value = 675;
+        document.getElementById("goals").value = 7;
+        document.getElementById("assists").value = 4;
+        document.getElementById("shots").value = 18;
+        form.dispatchEvent(new Event("submit"));
+    });
+
+    saveSquadBtn.addEventListener("click", () => {
+        if (!currentStats) return;
+        const existingIdx = squad.findIndex(p => p.player.toLowerCase() === currentStats.player.toLowerCase());
+        if (existingIdx !== -1) {
+            squad[existingIdx] = { ...currentStats, id: squad[existingIdx].id };
+        } else {
+            squad.push({ ...currentStats, id: Date.now() });
+        }
+        localStorage.setItem("footballSquadAnalytics", JSON.stringify(squad));
+        renderSquad();
+    });
+
+    copyReportBtn.addEventListener("click", () => {
+        if (!currentStats) return;
+        const text = `⚽ SCOUTING REPORT: ${currentStats.player} (${currentStats.position})
+Rating: ${currentStats.rating}/10 (${currentStats.tier})
+Apps: ${currentStats.matches} (${currentStats.minutes} mins)
+Goals: ${currentStats.goals} | Assists: ${currentStats.assists} | G+A: ${currentStats.contributions}
+G+A per 90: ${currentStats.per90} | Shot Conversion: ${currentStats.conversion}%`;
+
+        navigator.clipboard.writeText(text).then(() => {
+            const orig = copyReportBtn.textContent;
+            copyReportBtn.textContent = "Copied!";
+            setTimeout(() => (copyReportBtn.textContent = orig), 1500);
+        });
+    });
+
+    function removePlayer(id) {
+        squad = squad.filter(p => p.id !== id);
+        localStorage.setItem("footballSquadAnalytics", JSON.stringify(squad));
+        renderSquad();
+    }
+
+    clearSquadBtn.addEventListener("click", () => {
+        squad = [];
+        localStorage.removeItem("footballSquadAnalytics");
+        renderSquad();
+    });
+
+    sortSelect.addEventListener("change", renderSquad);
+
+    function renderSquad() {
+        const tbody = document.getElementById("squadBody");
+        const sortBy = sortSelect.value;
+
+        if (squad.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color: var(--text-muted); padding: 20px;">No players saved yet. Calculate stats above and click "+ Save to Squad".</td></tr>`;
+            compareBox.style.display = "none";
+            return;
+        }
+
+        const sorted = [...squad].sort((a, b) => b[sortBy] - a[sortBy]);
+        tbody.innerHTML = sorted.map(p => `
+            <tr>
+                <td><strong>${p.player}</strong></td>
+                <td><span class="badge pos">${p.position}</span></td>
+                <td>${p.matches}</td>
+                <td>${p.minutes}'</td>
+                <td>${p.goals}</td>
+                <td>${p.assists}</td>
+                <td style="color: var(--accent); font-weight:700;">${p.contributions}</td>
+                <td>${p.per90.toFixed(2)}</td>
+                <td>${p.conversion}%</td>
+                <td><span class="badge">${p.rating.toFixed(1)}</span></td>
+                <td><button type="button" class="btn-danger btn-sm" onclick="removePlayer(${p.id})">✕</button></td>
+            </tr>
+        `).join("");
+
+        updateCompareSelectors(sorted);
+    }
+
+    function updateCompareSelectors(sorted) {
+        if (sorted.length < 2) {
+            compareBox.style.display = "none";
+            return;
+        }
+        compareBox.style.display = "block";
+        const prev1 = compareP1.value;
+        const prev2 = compareP2.value;
+
+        const options = sorted.map(p => `<option value="${p.id}">${p.player} (${p.position})</option>`).join("");
+        compareP1.innerHTML = options;
+        compareP2.innerHTML = options;
+
+        compareP1.value = sorted.some(p => String(p.id) === prev1) ? prev1 : sorted[0].id;
+        compareP2.value = sorted.some(p => String(p.id) === prev2) ? prev2 : sorted[1].id;
+        renderComparison();
+    }
+
+    function renderComparison() {
+        const p1 = squad.find(p => String(p.id) === compareP1.value);
+        const p2 = squad.find(p => String(p.id) === compareP2.value);
+        if (!p1 || !p2) return;
+
+        const metrics = [
+            { label: "Match Rating", k: "rating", fmt: v => v.toFixed(1) },
+            { label: "G+A per 90", k: "per90", fmt: v => v.toFixed(2) },
+            { label: "Total G+A", k: "contributions", fmt: v => v },
+            { label: "Goals", k: "goals", fmt: v => v },
+            { label: "Assists", k: "assists", fmt: v => v },
+            { label: "Shot Conversion", k: "conversion", fmt: v => `${v}%` }
+        ];
+
+        document.getElementById("compareRows").innerHTML = metrics.map(m => {
+            const w1 = p1[m.k] > p2[m.k] ? "winner" : "";
+            const w2 = p2[m.k] > p1[m.k] ? "winner" : "";
+            return `
+                <div class="compare-row">
+                    <div class="p1 ${w1}">${m.fmt(p1[m.k])}</div>
+                    <div class="metric">${m.label}</div>
+                    <div class="p2 ${w2}">${m.fmt(p2[m.k])}</div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    compareP1.addEventListener("change", renderComparison);
+    compareP2.addEventListener("change", renderComparison);
+
+    // Initialize saved squad on page load
+    renderSquad();
 </script>
 
 </body>
